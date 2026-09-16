@@ -118,7 +118,7 @@ function drawCaption(
   const boxY = centerY - blockHeight / 2 - padY;
   const boxW = widest + padX * 2;
   const boxH = blockHeight + padY * 2;
-  const r = 16;
+  const r = 16 * k;
   ctx.moveTo(boxX + r, boxY);
   ctx.arcTo(boxX + boxW, boxY, boxX + boxW, boxY + boxH, r);
   ctx.arcTo(boxX + boxW, boxY + boxH, boxX, boxY + boxH, r);
@@ -151,13 +151,15 @@ function drawTitleCard(
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
   const fade = Math.min(1, t / 0.5) * Math.min(1, (duration - t) / 0.5);
   ctx.globalAlpha = Math.max(0, fade);
-  ctx.font = '800 72px system-ui, -apple-system, "Segoe UI", sans-serif';
+  const k = Math.max(WIDTH, HEIGHT) / 1280;
+  ctx.font = `800 ${72 * k}px system-ui, -apple-system, "Segoe UI", sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#fff";
   const lines = wrapLines(ctx, title, WIDTH * 0.8);
+  const lh = 88 * k;
   lines.forEach((line, i) => {
-    ctx.fillText(line, WIDTH / 2, HEIGHT / 2 - ((lines.length - 1) * 88) / 2 + i * 88);
+    ctx.fillText(line, WIDTH / 2, HEIGHT / 2 - ((lines.length - 1) * lh) / 2 + i * lh);
   });
   ctx.restore();
 }
