@@ -396,21 +396,71 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
                 />
               </div>
             </div>
+
+            <Picker
+              label="Picture quality"
+              value={ingredients.quality}
+              options={
+                QUALITIES.map((q) => [
+                  q,
+                  q === "draft"
+                    ? "Quick draft — fastest"
+                    : q === "standard"
+                      ? "Standard — balanced"
+                      : "High — slowest",
+                ]) as Array<[string, string]>
+              }
+              onChange={(value) => set("quality", value as typeof ingredients.quality)}
+            />
           </TabsContent>
 
           {/* ---------------- Scenes ---------------- */}
           <TabsContent value="scenes" className="space-y-4 pt-4">
+            {/* Timeline strip: tap a scene to jump straight to it. */}
+            {scenes.length > 1 ? (
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+                {scenes.map((scene, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() =>
+                      document
+                        .getElementById(`scene-${index}`)
+                        ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }
+                    className="relative h-14 w-24 shrink-0 overflow-hidden rounded border border-border bg-muted"
+                    aria-label={`Go to scene ${index + 1}`}
+                  >
+                    {scene.imagePath && previews[scene.imagePath] ? (
+                      <img
+                        src={previews[scene.imagePath]}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : null}
+                    <span className="absolute bottom-0 left-0 rounded-tr bg-background/85 px-1.5 text-[10px] font-medium text-foreground">
+                      {index + 1}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
             {scenes.map((scene, index) => (
-              <div key={index} className="space-y-2 rounded-lg border border-border p-3">
-                <div className="flex gap-3">
+              <div
+                key={index}
+                id={`scene-${index}`}
+                className="scroll-mt-4 space-y-2 rounded-lg border border-border p-3"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row">
                   {scene.imagePath && previews[scene.imagePath] ? (
                     <img
                       src={previews[scene.imagePath]}
                       alt={`Scene ${index + 1}`}
-                      className="h-20 w-32 shrink-0 rounded object-cover"
+                      className="h-32 w-full shrink-0 rounded object-cover sm:h-20 sm:w-32"
                     />
                   ) : (
-                    <div className="flex h-20 w-32 shrink-0 items-center justify-center rounded bg-muted text-xs text-muted-foreground">
+                    <div className="flex h-32 w-full shrink-0 items-center justify-center rounded bg-muted text-xs text-muted-foreground sm:h-20 sm:w-32">
                       No picture yet
                     </div>
                   )}
