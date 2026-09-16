@@ -13,6 +13,15 @@ export type RenderScene = { imageUrl: string; audioUrl: string | null; caption?:
 // Set per render: 16:9 for longform, 9:16 for shorts.
 let WIDTH = 1280;
 let HEIGHT = 720;
+let FPS = 24;
+let BITRATE = 2_500_000;
+
+/** Long edge, frame rate and bitrate per quality setting. */
+const QUALITY_PRESETS = {
+  draft: { long: 640, fps: 18, bitrate: 900_000 },
+  standard: { long: 960, fps: 24, bitrate: 2_200_000 },
+  high: { long: 1280, fps: 30, bitrate: 4_000_000 },
+} as const;
 
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
