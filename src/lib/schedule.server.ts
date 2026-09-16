@@ -42,7 +42,7 @@ export async function prepareDueVideos(limit = 3): Promise<{
       .from("videos")
       .update({ status: "preparing", progress: 5, error: null })
       .eq("id", row.id)
-      .eq("status", "scheduled")
+      .eq("status", row.status)
       .select("id");
     if (claim.error || (claim.data ?? []).length === 0) continue;
 
