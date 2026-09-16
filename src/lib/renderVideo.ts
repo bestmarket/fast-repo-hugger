@@ -107,12 +107,12 @@ function drawCaption(
   const lineHeight = size * 1.28;
   const blockHeight = lines.length * lineHeight;
   const centerY =
-    ingredients.captions.position === "center" ? HEIGHT / 2 : HEIGHT - 80 - blockHeight / 2;
+    ingredients.captions.position === "center" ? HEIGHT / 2 : HEIGHT - 80 * k - blockHeight / 2;
 
   const widest = Math.max(...lines.map((l) => ctx.measureText(l).width));
   ctx.fillStyle = "rgba(0,0,0,0.55)";
-  const padX = 28;
-  const padY = 18;
+  const padX = 28 * k;
+  const padY = 18 * k;
   ctx.beginPath();
   const boxX = (WIDTH - widest) / 2 - padX;
   const boxY = centerY - blockHeight / 2 - padY;
