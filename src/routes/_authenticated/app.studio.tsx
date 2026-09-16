@@ -83,6 +83,7 @@ function StudioPage() {
       if (scenes.length === 0) return;
       setBusyId(video.id);
       void requestNotificationPermission();
+      const releaseWakeLock = requestWakeLock();
       try {
         for (let i = 0; i < scenes.length; i += 1) {
           if (scenes[i]?.imagePath && scenes[i]?.audioPath) continue;
