@@ -395,8 +395,8 @@ function VideoLibrary({
       <div>
         <h2 className="text-sm font-medium text-foreground">Your videos</h2>
         <p className="text-xs text-muted-foreground">
-          Videos being made and finished videos both show up here. Keep this page open while a video
-          is being put together.
+          Pictures and voice keep being made for you even if you close this page. The final
+          assembly needs this page open, and picks up where it left off when you come back.
         </p>
       </div>
 
