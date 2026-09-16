@@ -541,7 +541,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
             Save
           </Button>
           <Button
-            className="flex-1"
+            className="min-h-11 flex-1"
             disabled={save.isPending}
             onClick={async () => {
               await save.mutateAsync({
