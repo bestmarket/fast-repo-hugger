@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789561658325,
+      "tag": "0000_import_speeder_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789567418018,
+      "tag": "0001_apply_imported_schema",
+      "breakpoints": true
+    }
+  ]
+}
