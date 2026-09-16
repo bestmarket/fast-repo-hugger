@@ -8,22 +8,27 @@ type DueVideo = {
   user_id: string;
   style: string | null;
   scenes: unknown;
+  status: string;
 };
 
 /**
- * Finds scheduled videos whose time has come and builds every scene
- * (image + narration) unattended, then hands them to the browser assembler.
+ * Builds every scene (image + narration) unattended for videos that are due:
+ * scheduled ones whose time has come, and anything simply waiting in the
+ * queue. This runs on the server, so the work continues while the person who
+ * asked for the video has their browser closed. The final assembly still
+ * happens in the browser and resumes automatically next time they open Studio.
  */
 export async function prepareDueVideos(limit = 3): Promise<{
   prepared: string[];
   failed: Array<{ id: string; error: string }>;
 }> {
+  const now = new Date().toISOString();
   const due = await supabaseAdmin
     .from("videos")
-    .select("id,user_id,style,scenes")
-    .eq("status", "scheduled")
-    .lte("scheduled_at", new Date().toISOString())
-    .order("scheduled_at", { ascending: true })
+    .select("id,user_id,style,scenes,status")
+    .in("status", ["scheduled", "queued"])
+    .or(`scheduled_at.is.null,scheduled_at.lte.${now}`)
+    .order("created_at", { ascending: true })
     .limit(limit);
 
   if (due.error) throw new Error(due.error.message);
