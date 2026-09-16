@@ -46,6 +46,7 @@ const TRANSITIONS: TransitionType[] = ["cut", "crossfade", "slide", "zoom"];
 const MOTIONS: MotionType[] = ["none", "zoom-in", "zoom-out", "pan-left", "pan-right"];
 const MOODS: MusicMood[] = ["calm", "uplifting", "tense", "epic"];
 const GRADES: Grade[] = ["none", "warm", "cool", "mono", "vivid", "vhs"];
+const QUALITIES: RenderQuality[] = ["draft", "standard", "high"];
 
 function pick<T extends string>(value: unknown, allowed: T[], fallback: T): T {
   return allowed.includes(value as T) ? (value as T) : fallback;
@@ -108,5 +109,6 @@ export function normalizeIngredients(raw: unknown): VideoIngredients {
       gapSeconds: num(pacing.gapSeconds, 0, 2, d.pacing.gapSeconds),
     },
     format: r["format"] === "shorts" ? "shorts" : "longform",
+    quality: pick(r["quality"], QUALITIES, d.quality),
   };
 }
