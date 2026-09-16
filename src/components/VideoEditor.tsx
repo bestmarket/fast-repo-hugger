@@ -149,7 +149,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="flex max-h-[92dvh] w-[calc(100vw-1rem)] max-w-2xl flex-col overflow-y-auto p-4 sm:w-full sm:p-6">
         <DialogHeader>
           <DialogTitle className="truncate">Edit “{video.title}”</DialogTitle>
           <DialogDescription>
@@ -207,7 +207,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
               />
             </Row>
             {ingredients.captions.enabled ? (
-              <div className="grid grid-cols-3 gap-2 pl-1">
+              <div className="grid grid-cols-2 gap-2 pl-1 sm:grid-cols-3">
                 <Picker
                   label="Size"
                   value={ingredients.captions.size}
@@ -248,7 +248,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
               </div>
             ) : null}
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <Picker
                 label="Transition"
                 value={ingredients.transition.type}
