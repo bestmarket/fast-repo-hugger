@@ -23,6 +23,7 @@ import {
   signAssets,
 } from "@/lib/studio.functions";
 import { useRefreshWorkspace, useWorkspace } from "@/lib/useWorkspace";
+import { requestWakeLock } from "@/lib/wakeLock";
 import { cn } from "@/lib/utils";
 import { normalizeIngredients } from "@/lib/videoIngredients";
 
