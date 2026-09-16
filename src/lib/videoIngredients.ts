@@ -10,6 +10,8 @@ export type MotionType = "none" | "zoom-in" | "zoom-out" | "pan-left" | "pan-rig
 export type MusicMood = "calm" | "uplifting" | "tense" | "epic";
 export type Grade = "none" | "warm" | "cool" | "mono" | "vivid" | "vhs";
 export type VideoFormat = "shorts" | "longform";
+/** How hard the browser works while putting the video together. */
+export type RenderQuality = "draft" | "standard" | "high";
 
 export type VideoIngredients = {
   captions: { enabled: boolean; size: CaptionSize; position: "bottom" | "center"; color: string };
@@ -22,6 +24,8 @@ export type VideoIngredients = {
   pacing: { minSceneSeconds: number; gapSeconds: number };
   /** Shorts render vertical 9:16, longform renders 16:9. */
   format: VideoFormat;
+  /** Lower quality finishes much faster — handy on a phone. */
+  quality: RenderQuality;
 };
 
 export const DEFAULT_INGREDIENTS: VideoIngredients = {
@@ -32,8 +36,9 @@ export const DEFAULT_INGREDIENTS: VideoIngredients = {
   sfx: { enabled: true, volume: 0.35 },
   grade: "none",
   titleCard: { enabled: false, text: "", seconds: 2.5 },
-  pacing: { minSceneSeconds: 3, gapSeconds: 0.35 },
+  pacing: { minSceneSeconds: 2.5, gapSeconds: 0.2 },
   format: "longform",
+  quality: "standard",
 };
 
 const CAPTION_SIZES: CaptionSize[] = ["sm", "md", "lg"];
@@ -41,6 +46,7 @@ const TRANSITIONS: TransitionType[] = ["cut", "crossfade", "slide", "zoom"];
 const MOTIONS: MotionType[] = ["none", "zoom-in", "zoom-out", "pan-left", "pan-right"];
 const MOODS: MusicMood[] = ["calm", "uplifting", "tense", "epic"];
 const GRADES: Grade[] = ["none", "warm", "cool", "mono", "vivid", "vhs"];
+export const QUALITIES: RenderQuality[] = ["draft", "standard", "high"];
 
 function pick<T extends string>(value: unknown, allowed: T[], fallback: T): T {
   return allowed.includes(value as T) ? (value as T) : fallback;
@@ -103,5 +109,6 @@ export function normalizeIngredients(raw: unknown): VideoIngredients {
       gapSeconds: num(pacing.gapSeconds, 0, 2, d.pacing.gapSeconds),
     },
     format: r["format"] === "shorts" ? "shorts" : "longform",
+    quality: pick(r["quality"], QUALITIES, d.quality),
   };
 }

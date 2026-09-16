@@ -23,6 +23,7 @@ import {
   signAssets,
 } from "@/lib/studio.functions";
 import { useRefreshWorkspace, useWorkspace } from "@/lib/useWorkspace";
+import { requestWakeLock } from "@/lib/wakeLock";
 import { cn } from "@/lib/utils";
 import { normalizeIngredients } from "@/lib/videoIngredients";
 
@@ -82,6 +83,7 @@ function StudioPage() {
       if (scenes.length === 0) return;
       setBusyId(video.id);
       void requestNotificationPermission();
+      const releaseWakeLock = requestWakeLock();
       try {
         for (let i = 0; i < scenes.length; i += 1) {
           if (scenes[i]?.imagePath && scenes[i]?.audioPath) continue;
@@ -171,6 +173,7 @@ function StudioPage() {
         await refresh();
         notify("Video failed", message, "error");
       } finally {
+        releaseWakeLock();
         setLiveProgress((p) => {
           const next = { ...p };
           delete next[video.id];
@@ -392,8 +395,8 @@ function VideoLibrary({
       <div>
         <h2 className="text-sm font-medium text-foreground">Your videos</h2>
         <p className="text-xs text-muted-foreground">
-          Videos being made and finished videos both show up here. Keep this page open while a video
-          is being put together.
+          Pictures and voice keep being made for you even if you close this page. The final
+          assembly needs this page open, and picks up where it left off when you come back.
         </p>
       </div>
 

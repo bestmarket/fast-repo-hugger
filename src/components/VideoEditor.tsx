@@ -32,7 +32,7 @@ import {
   signAssets,
   updateVideoSettings,
 } from "@/lib/studio.functions";
-import { normalizeIngredients, type VideoIngredients } from "@/lib/videoIngredients";
+import { normalizeIngredients, QUALITIES, type VideoIngredients } from "@/lib/videoIngredients";
 
 type EditableVideo = {
   id: string;
@@ -149,7 +149,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="flex max-h-[92dvh] w-[calc(100vw-1rem)] max-w-2xl flex-col overflow-y-auto p-4 sm:w-full sm:p-6">
         <DialogHeader>
           <DialogTitle className="truncate">Edit “{video.title}”</DialogTitle>
           <DialogDescription>
@@ -207,7 +207,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
               />
             </Row>
             {ingredients.captions.enabled ? (
-              <div className="grid grid-cols-3 gap-2 pl-1">
+              <div className="grid grid-cols-2 gap-2 pl-1 sm:grid-cols-3">
                 <Picker
                   label="Size"
                   value={ingredients.captions.size}
@@ -248,7 +248,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
               </div>
             ) : null}
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <Picker
                 label="Transition"
                 value={ingredients.transition.type}
@@ -289,7 +289,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
               />
             </Row>
             {ingredients.music.enabled ? (
-              <div className="grid grid-cols-2 gap-2 pl-1">
+              <div className="grid grid-cols-1 gap-2 pl-1 sm:grid-cols-2">
                 <Picker
                   label="Mood"
                   value={ingredients.music.mood}
@@ -362,7 +362,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
               />
             ) : null}
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label className="text-xs">Shortest scene (seconds)</Label>
                 <Input
@@ -396,21 +396,71 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
                 />
               </div>
             </div>
+
+            <Picker
+              label="Picture quality"
+              value={ingredients.quality}
+              options={
+                QUALITIES.map((q) => [
+                  q,
+                  q === "draft"
+                    ? "Quick draft — fastest"
+                    : q === "standard"
+                      ? "Standard — balanced"
+                      : "High — slowest",
+                ]) as Array<[string, string]>
+              }
+              onChange={(value) => set("quality", value as typeof ingredients.quality)}
+            />
           </TabsContent>
 
           {/* ---------------- Scenes ---------------- */}
           <TabsContent value="scenes" className="space-y-4 pt-4">
+            {/* Timeline strip: tap a scene to jump straight to it. */}
+            {scenes.length > 1 ? (
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+                {scenes.map((scene, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() =>
+                      document
+                        .getElementById(`scene-${index}`)
+                        ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }
+                    className="relative h-14 w-24 shrink-0 overflow-hidden rounded border border-border bg-muted"
+                    aria-label={`Go to scene ${index + 1}`}
+                  >
+                    {scene.imagePath && previews[scene.imagePath] ? (
+                      <img
+                        src={previews[scene.imagePath]}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : null}
+                    <span className="absolute bottom-0 left-0 rounded-tr bg-background/85 px-1.5 text-[10px] font-medium text-foreground">
+                      {index + 1}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
             {scenes.map((scene, index) => (
-              <div key={index} className="space-y-2 rounded-lg border border-border p-3">
-                <div className="flex gap-3">
+              <div
+                key={index}
+                id={`scene-${index}`}
+                className="scroll-mt-4 space-y-2 rounded-lg border border-border p-3"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row">
                   {scene.imagePath && previews[scene.imagePath] ? (
                     <img
                       src={previews[scene.imagePath]}
                       alt={`Scene ${index + 1}`}
-                      className="h-20 w-32 shrink-0 rounded object-cover"
+                      className="h-32 w-full shrink-0 rounded object-cover sm:h-20 sm:w-32"
                     />
                   ) : (
-                    <div className="flex h-20 w-32 shrink-0 items-center justify-center rounded bg-muted text-xs text-muted-foreground">
+                    <div className="flex h-32 w-full shrink-0 items-center justify-center rounded bg-muted text-xs text-muted-foreground sm:h-20 sm:w-32">
                       No picture yet
                     </div>
                   )}
@@ -474,9 +524,10 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
           </TabsContent>
         </Tabs>
 
-        <div className="flex flex-wrap gap-2 border-t border-border pt-4">
+        <div className="sticky bottom-0 -mx-4 flex flex-wrap gap-2 border-t border-border bg-background px-4 pb-1 pt-3 sm:mx-0 sm:px-0 sm:pb-0 sm:pt-4">
           <Button
             variant="outline"
+            className="min-h-11 flex-1 sm:flex-none"
             disabled={save.isPending}
             onClick={() =>
               save.mutate({ data: { videoId: video.id, settings: ingredients as never } })
@@ -490,7 +541,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
             Save
           </Button>
           <Button
-            className="flex-1"
+            className="min-h-11 flex-1"
             disabled={save.isPending}
             onClick={async () => {
               await save.mutateAsync({

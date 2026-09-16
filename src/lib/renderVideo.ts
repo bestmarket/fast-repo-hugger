@@ -13,6 +13,15 @@ export type RenderScene = { imageUrl: string; audioUrl: string | null; caption?:
 // Set per render: 16:9 for longform, 9:16 for shorts.
 let WIDTH = 1280;
 let HEIGHT = 720;
+let FPS = 24;
+let BITRATE = 2_500_000;
+
+/** Long edge, frame rate and bitrate per quality setting. */
+const QUALITY_PRESETS = {
+  draft: { long: 640, fps: 18, bitrate: 900_000 },
+  standard: { long: 960, fps: 24, bitrate: 2_200_000 },
+  high: { long: 1280, fps: 30, bitrate: 4_000_000 },
+} as const;
 
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -87,7 +96,9 @@ function drawCaption(
   ingredients: VideoIngredients,
 ): void {
   if (!text) return;
-  const size = ingredients.captions.size === "sm" ? 34 : ingredients.captions.size === "lg" ? 58 : 44;
+  const k = Math.max(WIDTH, HEIGHT) / 1280;
+  const base = ingredients.captions.size === "sm" ? 34 : ingredients.captions.size === "lg" ? 58 : 44;
+  const size = base * k;
   ctx.save();
   ctx.font = `700 ${size}px system-ui, -apple-system, "Segoe UI", sans-serif`;
   ctx.textAlign = "center";
@@ -96,18 +107,18 @@ function drawCaption(
   const lineHeight = size * 1.28;
   const blockHeight = lines.length * lineHeight;
   const centerY =
-    ingredients.captions.position === "center" ? HEIGHT / 2 : HEIGHT - 80 - blockHeight / 2;
+    ingredients.captions.position === "center" ? HEIGHT / 2 : HEIGHT - 80 * k - blockHeight / 2;
 
   const widest = Math.max(...lines.map((l) => ctx.measureText(l).width));
   ctx.fillStyle = "rgba(0,0,0,0.55)";
-  const padX = 28;
-  const padY = 18;
+  const padX = 28 * k;
+  const padY = 18 * k;
   ctx.beginPath();
   const boxX = (WIDTH - widest) / 2 - padX;
   const boxY = centerY - blockHeight / 2 - padY;
   const boxW = widest + padX * 2;
   const boxH = blockHeight + padY * 2;
-  const r = 16;
+  const r = 16 * k;
   ctx.moveTo(boxX + r, boxY);
   ctx.arcTo(boxX + boxW, boxY, boxX + boxW, boxY + boxH, r);
   ctx.arcTo(boxX + boxW, boxY + boxH, boxX, boxY + boxH, r);
@@ -140,13 +151,15 @@ function drawTitleCard(
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
   const fade = Math.min(1, t / 0.5) * Math.min(1, (duration - t) / 0.5);
   ctx.globalAlpha = Math.max(0, fade);
-  ctx.font = '800 72px system-ui, -apple-system, "Segoe UI", sans-serif';
+  const k = Math.max(WIDTH, HEIGHT) / 1280;
+  ctx.font = `800 ${72 * k}px system-ui, -apple-system, "Segoe UI", sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#fff";
   const lines = wrapLines(ctx, title, WIDTH * 0.8);
+  const lh = 88 * k;
   lines.forEach((line, i) => {
-    ctx.fillText(line, WIDTH / 2, HEIGHT / 2 - ((lines.length - 1) * 88) / 2 + i * 88);
+    ctx.fillText(line, WIDTH / 2, HEIGHT / 2 - ((lines.length - 1) * lh) / 2 + i * lh);
   });
   ctx.restore();
 }
@@ -246,13 +259,18 @@ export async function renderVideo(
     throw new Error("This browser can't assemble the video. Try Chrome on desktop.");
   }
 
+  const preset = QUALITY_PRESETS[ingredients.quality] ?? QUALITY_PRESETS.standard;
+  const long = Math.round(preset.long / 2) * 2;
+  const short = Math.round((long * 9) / 16 / 2) * 2;
   if (ingredients.format === "shorts") {
-    WIDTH = 720;
-    HEIGHT = 1280;
+    WIDTH = short;
+    HEIGHT = long;
   } else {
-    WIDTH = 1280;
-    HEIGHT = 720;
+    WIDTH = long;
+    HEIGHT = short;
   }
+  FPS = preset.fps;
+  BITRATE = preset.bitrate;
 
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
@@ -280,12 +298,12 @@ export async function renderVideo(
 
   const images = await Promise.all(scenes.map((s) => loadImage(s.imageUrl)));
 
-  const stream = canvas.captureStream(30);
+  const stream = canvas.captureStream(FPS);
   for (const track of destination.stream.getAudioTracks()) stream.addTrack(track);
 
   const chunks: BlobPart[] = [];
   const mimeType = pickMimeType();
-  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 4_000_000 });
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: BITRATE });
   recorder.ondataavailable = (event) => {
     if (event.data.size > 0) chunks.push(event.data);
   };
