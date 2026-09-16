@@ -36,8 +36,9 @@ export const DEFAULT_INGREDIENTS: VideoIngredients = {
   sfx: { enabled: true, volume: 0.35 },
   grade: "none",
   titleCard: { enabled: false, text: "", seconds: 2.5 },
-  pacing: { minSceneSeconds: 3, gapSeconds: 0.35 },
+  pacing: { minSceneSeconds: 2.5, gapSeconds: 0.2 },
   format: "longform",
+  quality: "standard",
 };
 
 const CAPTION_SIZES: CaptionSize[] = ["sm", "md", "lg"];
