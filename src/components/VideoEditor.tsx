@@ -32,7 +32,7 @@ import {
   signAssets,
   updateVideoSettings,
 } from "@/lib/studio.functions";
-import { normalizeIngredients, type VideoIngredients } from "@/lib/videoIngredients";
+import { normalizeIngredients, QUALITIES, type VideoIngredients } from "@/lib/videoIngredients";
 
 type EditableVideo = {
   id: string;
@@ -362,7 +362,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
               />
             ) : null}
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label className="text-xs">Shortest scene (seconds)</Label>
                 <Input
