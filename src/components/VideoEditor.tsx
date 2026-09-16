@@ -289,7 +289,7 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
               />
             </Row>
             {ingredients.music.enabled ? (
-              <div className="grid grid-cols-2 gap-2 pl-1">
+              <div className="grid grid-cols-1 gap-2 pl-1 sm:grid-cols-2">
                 <Picker
                   label="Mood"
                   value={ingredients.music.mood}
