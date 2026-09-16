@@ -96,7 +96,9 @@ function drawCaption(
   ingredients: VideoIngredients,
 ): void {
   if (!text) return;
-  const size = ingredients.captions.size === "sm" ? 34 : ingredients.captions.size === "lg" ? 58 : 44;
+  const k = Math.max(WIDTH, HEIGHT) / 1280;
+  const base = ingredients.captions.size === "sm" ? 34 : ingredients.captions.size === "lg" ? 58 : 44;
+  const size = base * k;
   ctx.save();
   ctx.font = `700 ${size}px system-ui, -apple-system, "Segoe UI", sans-serif`;
   ctx.textAlign = "center";
