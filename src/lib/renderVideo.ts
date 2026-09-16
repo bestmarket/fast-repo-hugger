@@ -255,13 +255,18 @@ export async function renderVideo(
     throw new Error("This browser can't assemble the video. Try Chrome on desktop.");
   }
 
+  const preset = QUALITY_PRESETS[ingredients.quality] ?? QUALITY_PRESETS.standard;
+  const long = Math.round(preset.long / 2) * 2;
+  const short = Math.round((long * 9) / 16 / 2) * 2;
   if (ingredients.format === "shorts") {
-    WIDTH = 720;
-    HEIGHT = 1280;
+    WIDTH = short;
+    HEIGHT = long;
   } else {
-    WIDTH = 1280;
-    HEIGHT = 720;
+    WIDTH = long;
+    HEIGHT = short;
   }
+  FPS = preset.fps;
+  BITRATE = preset.bitrate;
 
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
@@ -289,12 +294,12 @@ export async function renderVideo(
 
   const images = await Promise.all(scenes.map((s) => loadImage(s.imageUrl)));
 
-  const stream = canvas.captureStream(30);
+  const stream = canvas.captureStream(FPS);
   for (const track of destination.stream.getAudioTracks()) stream.addTrack(track);
 
   const chunks: BlobPart[] = [];
   const mimeType = pickMimeType();
-  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 4_000_000 });
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: BITRATE });
   recorder.ondataavailable = (event) => {
     if (event.data.size > 0) chunks.push(event.data);
   };
