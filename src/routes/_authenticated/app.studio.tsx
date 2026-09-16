@@ -173,6 +173,7 @@ function StudioPage() {
         await refresh();
         notify("Video failed", message, "error");
       } finally {
+        releaseWakeLock();
         setLiveProgress((p) => {
           const next = { ...p };
           delete next[video.id];
