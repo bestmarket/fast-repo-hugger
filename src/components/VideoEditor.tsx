@@ -524,9 +524,10 @@ export function VideoEditor({ video, onClose, onChanged, onRerender }: Props) {
           </TabsContent>
         </Tabs>
 
-        <div className="flex flex-wrap gap-2 border-t border-border pt-4">
+        <div className="sticky bottom-0 -mx-4 flex flex-wrap gap-2 border-t border-border bg-background px-4 pb-1 pt-3 sm:mx-0 sm:px-0 sm:pb-0 sm:pt-4">
           <Button
             variant="outline"
+            className="min-h-11 flex-1 sm:flex-none"
             disabled={save.isPending}
             onClick={() =>
               save.mutate({ data: { videoId: video.id, settings: ingredients as never } })
